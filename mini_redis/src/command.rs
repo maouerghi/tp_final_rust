@@ -138,3 +138,57 @@ impl Command {
 pub fn parse_request(line: &str) -> Result<Request, String> {
     serde_json::from_str(line).map_err(|_| "invalid json".to_string())
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_ping() {
+        let req = parse_request(r#"{"cmd": "PING"}"#).unwrap();
+        assert_eq!(req.cmd, "PING");
+    }
+
+    #[test]
+    fn test_parse_set() {
+        let req = parse_request(r#"{"cmd": "SET", "key": "k", "value": "v"}"#).unwrap();
+        assert_eq!(req.cmd, "SET");
+        assert_eq!(req.key, Some("k".to_string()));
+        assert_eq!(req.value, Some("v".to_string()));
+    }
+
+    #[test]
+    fn test_parse_invalid_json() {
+        let res = parse_request(r#"{"cmd": "PING""#);
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn test_response_ok() {
+        let resp = Response::ok();
+        assert_eq!(resp.status, "ok");
+        assert_eq!(resp.message, None);
+    }
+
+    #[test]
+    fn test_response_error() {
+        let resp = Response::error("test error");
+        assert_eq!(resp.status, "error");
+        assert_eq!(resp.message, Some("test error".to_string()));
+    }
+
+    #[test]
+    fn test_response_with_value() {
+        let resp = Response::ok().with_value("hello");
+        assert_eq!(resp.status, "ok");
+        assert_eq!(resp.value, Some(serde_json::Value::String("hello".to_string())));
+    }
+
+    #[test]
+    fn test_command_parsing() {
+        assert_eq!(Command::from_str("PING"), Some(Command::Ping));
+        assert_eq!(Command::from_str("ping"), Some(Command::Ping));
+        assert_eq!(Command::from_str("UNKNOWN"), None);
+    }
+}
