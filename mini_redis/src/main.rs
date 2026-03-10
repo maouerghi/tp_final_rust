@@ -4,8 +4,8 @@
 //! Supports les commandes : PING, SET, GET, DEL, KEYS, EXPIRE, TTL, INCR, DECR, SAVE
 //!
 //! ## Protocole
-//! - **Transport** : TCP sur `127.0.0.1:7878`
-//! - **Format** : Requêtes/réponses JSON, une par ligne, terminées par `\n`
+//! - Transport : TCP sur `127.0.0.1:7878`
+//! - Format : Requêtes/réponses JSON, une par ligne, terminées par `\n`
 //!
 //! ## Architecture
 //! - `store.rs` : Stockage thread-safe avec expirations

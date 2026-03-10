@@ -65,7 +65,10 @@ mod tests {
         {
             let mut guard = store.lock().await;
             let past = Instant::now() - Duration::from_secs(1);
-            guard.insert("expired".to_string(), Entry::with_expiry("old".to_string(), past));
+            guard.insert(
+                "expired".to_string(),
+                Entry::with_expiry("old".to_string(), past),
+            );
         }
 
         // Vérifier l'état initial
@@ -74,8 +77,11 @@ mod tests {
             assert_eq!(guard.len(), 2);
         }
 
-        // Attendre le nettoyage (+ de temps pour éviter race condition)
-        tokio::time::sleep(Duration::from_millis(2500)).await;
+        // Spawner le cleanup task
+        let cleanup_handle = spawn_expiry_cleanup(store.clone());
+
+        // Attendre que le cleanup s'exécute
+        tokio::time::sleep(Duration::from_millis(1500)).await;
 
         // Vérifier que la clé expirée a été supprimée
         {
@@ -84,5 +90,8 @@ mod tests {
             assert!(guard.contains_key("valid"));
             assert!(!guard.contains_key("expired"));
         }
+
+        // Arrêter le cleanup task
+        cleanup_handle.abort();
     }
 }
