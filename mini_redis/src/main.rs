@@ -14,16 +14,30 @@
 //! - `expiry.rs` : Nettoyage des clés expirées en arrière-plan
 //! - `error.rs` : Gestion des erreurs
 
+mod command;
+mod error;
+mod expiry;
+mod handler;
+mod store;
+
+
+
+use std::net::SocketAddr;
+use tokio::net::TcpListener;
+use tracing::info;
 
 #[tokio::main]
 async fn main() {
-    // Initialiser tracing
+    // === INITIALISATION DU LOGGING ===
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env()
                 .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info")),
         )
         .init();
+
+        info!("Starting MiniRedis server...");
+
 
     // TODO: Implémenter le serveur MiniRedis sur 127.0.0.1:7878
     //

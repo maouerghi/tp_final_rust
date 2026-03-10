@@ -83,3 +83,33 @@ pub type SharedStore = Arc<Mutex<HashMap<String, Entry>>>;
 pub fn new_shared_store() -> SharedStore {
     Arc::new(Mutex::new(HashMap::new()))
 }
+
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_entry_no_expiry() {
+        let entry = Entry::new("value".to_string());
+        assert!(!entry.is_expired());
+        assert_eq!(entry.ttl(), -1);
+    }
+
+    #[test]
+    fn test_entry_with_expiry() {
+        let future = Instant::now() + std::time::Duration::from_secs(10);
+        let entry = Entry::with_expiry("value".to_string(), future);
+        assert!(!entry.is_expired());
+        assert!(entry.ttl() > 0 && entry.ttl() <= 10);
+    }
+
+    #[test]
+    fn test_entry_expired() {
+        let past = Instant::now() - std::time::Duration::from_secs(1);
+        let entry = Entry::with_expiry("value".to_string(), past);
+        assert!(entry.is_expired());
+        assert_eq!(entry.ttl(), -2);
+    }
+}
