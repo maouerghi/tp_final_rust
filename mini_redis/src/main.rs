@@ -1,3 +1,20 @@
+//! # MiniRedis - Serveur Key-Value Asynchrone
+//!
+//! Un serveur Redis minimaliste implémenté en Rust avec Tokio.
+//! Supports les commandes : PING, SET, GET, DEL, KEYS, EXPIRE, TTL, INCR, DECR, SAVE
+//!
+//! ## Protocole
+//! - **Transport** : TCP sur `127.0.0.1:7878`
+//! - **Format** : Requêtes/réponses JSON, une par ligne, terminées par `\n`
+//!
+//! ## Architecture
+//! - `store.rs` : Stockage thread-safe avec expirations
+//! - `command.rs` : Types de requête/réponse
+//! - `handler.rs` : Traitement des clients TCP
+//! - `expiry.rs` : Nettoyage des clés expirées en arrière-plan
+//! - `error.rs` : Gestion des erreurs
+
+
 #[tokio::main]
 async fn main() {
     // Initialiser tracing
