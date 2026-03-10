@@ -35,7 +35,7 @@ pub async fn handle_client(socket: TcpStream, store: SharedStore, addr: SocketAd
             }
             Ok(_) => {
                 // Ligne reçue
-                let response = process_request(&line.trim(), store.clone()).await;
+                let response = process_request(line.trim(), store.clone()).await;
                 let response_json = response.to_json_line();
 
                 // Envoyer la réponse
