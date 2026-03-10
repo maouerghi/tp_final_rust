@@ -20,14 +20,12 @@ mod expiry;
 mod handler;
 mod store;
 
-
-
 use std::net::SocketAddr;
 use tokio::net::TcpListener;
 use tracing::info;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> anyhow::Result<()> {
     // === INITIALISATION DU LOGGING ===
     tracing_subscriber::fmt()
         .with_env_filter(
@@ -36,13 +34,12 @@ async fn main() {
         )
         .init();
 
-        info!("Starting MiniRedis server...");
+    info!("Starting MiniRedis server...");
 
     // === SETUP DU SERVEUR ===
     let addr: SocketAddr = "127.0.0.1:7878".parse()?;
     let listener = TcpListener::bind(&addr).await?;
     info!("Server listening on {}", addr);
-
 
     // === CRÉATION DU STORE PARTAGÉ ===
     let store = store::new_shared_store();
@@ -52,4 +49,18 @@ async fn main() {
     let _cleanup_handle = expiry::spawn_expiry_cleanup(store.clone());
     info!("Expiry cleanup task spawned");
 
+    // === ACCEPT LOOP ===
+    info!("Accepting connections...");
+    loop {
+        let (socket, addr) = listener.accept().await?;
+        let store = store.clone();
+
+        // Spawn une tâche pour chaque client
+        tokio::spawn(async move {
+            handler::handle_client(socket, store, addr).await;
+        });
+    }
+
+    // Note: le cleanup_handle n'est jamais await car la boucle est infinie.
+    
 }
