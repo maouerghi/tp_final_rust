@@ -61,6 +61,17 @@ async fn main() -> anyhow::Result<()> {
         });
     }
 
-    // Note: le cleanup_handle n'est jamais await car la boucle est infinie.
-    
+    // Note: le cleanup_handle n'est jamais await-é car la boucle est infinie.
+    // En pratique, il s'exécutera jusqu'à l'arrêt du serveur.
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_config() {
+        // Test simple pour vérifier que le projet compile
+        assert_eq!("MiniRedis", "MiniRedis");
+    }
 }

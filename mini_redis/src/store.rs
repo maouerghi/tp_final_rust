@@ -3,7 +3,6 @@
 //! Gère le stockage en mémoire des paires clé/valeur avec support des expirations.
 //! Utilise `Arc<Mutex<HashMap>>` pour la sécurité thread-safe.
 
-
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
@@ -19,8 +18,7 @@ pub struct Entry {
     pub expires_at: Option<Instant>,
 }
 
-
-
+#[allow(dead_code)]
 impl Entry {
     /// Crée une nouvelle entrée sans expiration.
     pub fn new(value: String) -> Self {
@@ -55,12 +53,12 @@ impl Entry {
             Some(exp) => {
                 // Calculer le temps restant jusqu'à l'expiration
                 let remaining = exp.saturating_duration_since(Instant::now());
-                
+
                 // Si saturating_duration_since retourne 0, la clé a expiré
                 if remaining.as_secs() == 0 && remaining.subsec_nanos() == 0 {
                     return -2;
                 }
-                
+
                 // Retourner le TTL en secondes (arrondir à la hausse)
                 let secs = remaining.as_secs();
                 if remaining.subsec_nanos() > 0 {
@@ -74,8 +72,6 @@ impl Entry {
     }
 }
 
-
-
 /// Type alias pour le store partagé thread-safe.
 pub type SharedStore = Arc<Mutex<HashMap<String, Entry>>>;
 
@@ -83,8 +79,6 @@ pub type SharedStore = Arc<Mutex<HashMap<String, Entry>>>;
 pub fn new_shared_store() -> SharedStore {
     Arc::new(Mutex::new(HashMap::new()))
 }
-
-
 
 #[cfg(test)]
 mod tests {

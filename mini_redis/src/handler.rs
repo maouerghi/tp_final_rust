@@ -15,11 +15,7 @@ use tracing::{debug, error, info, warn};
 ///
 /// Lit les requêtes JSON ligne par ligne, exécute les commandes,
 /// et envoie les réponses.
-pub async fn handle_client(
-    socket: TcpStream,
-    store: SharedStore,
-    addr: SocketAddr,
-) {
+pub async fn handle_client(socket: TcpStream, store: SharedStore, addr: SocketAddr) {
     info!("New client connected: {}", addr);
 
     let (read, mut write) = socket.into_split();
@@ -148,7 +144,11 @@ async fn execute_command(
             debug!("DEL {}", key);
 
             let mut store_guard = store.lock().await;
-            let count = if store_guard.remove(&key).is_some() { 1 } else { 0 };
+            let count = if store_guard.remove(&key).is_some() {
+                1
+            } else {
+                0
+            };
 
             Response::ok().with_count(count)
         }
@@ -296,5 +296,77 @@ async fn execute_command(
                 }
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_ping_command() {
+        let store = crate::store::new_shared_store();
+        let req = crate::command::Request {
+            cmd: "PING".to_string(),
+            key: None,
+            value: None,
+            seconds: None,
+        };
+        let response = execute_command(Command::Ping, req, store).await;
+        assert_eq!(response.status, "ok");
+    }
+
+    #[tokio::test]
+    async fn test_set_and_get() {
+        let store = crate::store::new_shared_store();
+
+        // SET
+        let req = crate::command::Request {
+            cmd: "SET".to_string(),
+            key: Some("key1".to_string()),
+            value: Some("value1".to_string()),
+            seconds: None,
+        };
+        let response = execute_command(Command::Set, req, store.clone()).await;
+        assert_eq!(response.status, "ok");
+
+        // GET
+        let req = crate::command::Request {
+            cmd: "GET".to_string(),
+            key: Some("key1".to_string()),
+            value: None,
+            seconds: None,
+        };
+        let response = execute_command(Command::Get, req, store).await;
+        assert_eq!(response.status, "ok");
+        assert_eq!(
+            response.value,
+            Some(serde_json::Value::String("value1".to_string()))
+        );
+    }
+
+    #[tokio::test]
+    async fn test_incr() {
+        let store = crate::store::new_shared_store();
+
+        // INCR (nouvelle clé)
+        let req = crate::command::Request {
+            cmd: "INCR".to_string(),
+            key: Some("counter".to_string()),
+            value: None,
+            seconds: None,
+        };
+        let response = execute_command(Command::Incr, req, store.clone()).await;
+        assert_eq!(response.status, "ok");
+
+        // INCR again
+        let req = crate::command::Request {
+            cmd: "INCR".to_string(),
+            key: Some("counter".to_string()),
+            value: None,
+            seconds: None,
+        };
+        let response = execute_command(Command::Incr, req, store).await;
+        assert_eq!(response.status, "ok");
     }
 }

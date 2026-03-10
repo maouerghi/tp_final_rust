@@ -180,7 +180,10 @@ mod tests {
     fn test_response_with_value() {
         let resp = Response::ok().with_value("hello");
         assert_eq!(resp.status, "ok");
-        assert_eq!(resp.value, Some(serde_json::Value::String("hello".to_string())));
+        assert_eq!(
+            resp.value,
+            Some(serde_json::Value::String("hello".to_string()))
+        );
     }
 
     #[test]
