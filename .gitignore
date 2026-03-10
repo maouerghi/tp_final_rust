@@ -1,0 +1,17 @@
+# Corrigé
+reference_server/
+
+# Sources du client de test (distribué en binaire pré-compilé)
+test_client/
+
+# Build artifacts
+target/
+**/target/
+mini_redis/Cargo.lock
+
+# Dump de persistance
+dump.json
+
+.devenv
+devenv*
+.envrc
