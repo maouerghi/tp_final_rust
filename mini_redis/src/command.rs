@@ -2,6 +2,7 @@
 //!
 //! Définit les types Request et Response sérialisables en JSON,
 //! ainsi que les fonctions de parsing.
+
 use serde::{Deserialize, Serialize};
 
 /// Représente une requête du client.
@@ -40,7 +41,6 @@ pub struct Response {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message: Option<String>,
 }
-
 
 impl Response {
     /// Crée une réponse de succès.
@@ -114,7 +114,6 @@ pub enum Command {
     Save,
 }
 
-
 impl Command {
     /// Parse le nom de la commande depuis une string.
     pub fn from_str(s: &str) -> Option<Self> {
@@ -138,7 +137,6 @@ impl Command {
 pub fn parse_request(line: &str) -> Result<Request, String> {
     serde_json::from_str(line).map_err(|_| "invalid json".to_string())
 }
-
 
 #[cfg(test)]
 mod tests {
