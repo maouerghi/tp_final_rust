@@ -38,7 +38,15 @@ async fn main() {
 
         info!("Starting MiniRedis server...");
 
+    // === SETUP DU SERVEUR ===
+    let addr: SocketAddr = "127.0.0.1:7878".parse()?;
+    let listener = TcpListener::bind(&addr).await?;
+    info!("Server listening on {}", addr);
 
+
+    // === CRÉATION DU STORE PARTAGÉ ===
+    let store = store::new_shared_store();
+    info!("Shared store initialized");
     // TODO: Implémenter le serveur MiniRedis sur 127.0.0.1:7878
     //
     // Étapes suggérées :
