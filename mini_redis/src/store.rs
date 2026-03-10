@@ -73,3 +73,13 @@ impl Entry {
         }
     }
 }
+
+
+
+/// Type alias pour le store partagé thread-safe.
+pub type SharedStore = Arc<Mutex<HashMap<String, Entry>>>;
+
+/// Factory pour créer un nouveau store.
+pub fn new_shared_store() -> SharedStore {
+    Arc::new(Mutex::new(HashMap::new()))
+}
