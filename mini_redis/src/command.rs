@@ -113,3 +113,28 @@ pub enum Command {
     Decr,
     Save,
 }
+
+
+impl Command {
+    /// Parse le nom de la commande depuis une string.
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s.to_uppercase().as_str() {
+            "PING" => Some(Command::Ping),
+            "SET" => Some(Command::Set),
+            "GET" => Some(Command::Get),
+            "DEL" => Some(Command::Del),
+            "KEYS" => Some(Command::Keys),
+            "EXPIRE" => Some(Command::Expire),
+            "TTL" => Some(Command::Ttl),
+            "INCR" => Some(Command::Incr),
+            "DECR" => Some(Command::Decr),
+            "SAVE" => Some(Command::Save),
+            _ => None,
+        }
+    }
+}
+
+/// Parse une ligne JSON en Request.
+pub fn parse_request(line: &str) -> Result<Request, String> {
+    serde_json::from_str(line).map_err(|_| "invalid json".to_string())
+}
