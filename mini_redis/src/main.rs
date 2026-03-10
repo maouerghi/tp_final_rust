@@ -47,14 +47,9 @@ async fn main() {
     // === CRÉATION DU STORE PARTAGÉ ===
     let store = store::new_shared_store();
     info!("Shared store initialized");
-    // TODO: Implémenter le serveur MiniRedis sur 127.0.0.1:7878
-    //
-    // Étapes suggérées :
-    // 1. Créer le store partagé (Arc<Mutex<HashMap<String, ...>>>)
-    // 2. Bind un TcpListener sur 127.0.0.1:7878
-    // 3. Accept loop : pour chaque connexion, spawn une tâche
-    // 4. Dans chaque tâche : lire les requêtes JSON ligne par ligne,
-    //    traiter la commande, envoyer la réponse JSON + '\n'
 
-    println!("MiniRedis - à implémenter !");
+    // === LANCEMENT DU NETTOYAGE DES EXPIRATIONS ===
+    let _cleanup_handle = expiry::spawn_expiry_cleanup(store.clone());
+    info!("Expiry cleanup task spawned");
+
 }
