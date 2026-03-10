@@ -42,3 +42,76 @@ pub struct Response {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub message: Option<String>,
 }
+
+
+impl Response {
+    /// Crée une réponse de succès.
+    pub fn ok() -> Self {
+        Self {
+            status: "ok".to_string(),
+            value: None,
+            count: None,
+            keys: None,
+            ttl: None,
+            message: None,
+        }
+    }
+
+    /// Crée une réponse d'erreur.
+    pub fn error(message: impl Into<String>) -> Self {
+        Self {
+            status: "error".to_string(),
+            value: None,
+            count: None,
+            keys: None,
+            ttl: None,
+            message: Some(message.into()),
+        }
+    }
+
+    /// Ajoute une valeur à la réponse.
+    pub fn with_value(mut self, value: impl Into<serde_json::Value>) -> Self {
+        self.value = Some(value.into());
+        self
+    }
+
+    /// Ajoute un count à la réponse.
+    pub fn with_count(mut self, count: u32) -> Self {
+        self.count = Some(count);
+        self
+    }
+
+    /// Ajoute une liste de clés à la réponse.
+    pub fn with_keys(mut self, keys: Vec<String>) -> Self {
+        self.keys = Some(keys);
+        self
+    }
+
+    /// Ajoute un TTL à la réponse.
+    pub fn with_ttl(mut self, ttl: i64) -> Self {
+        self.ttl = Some(ttl);
+        self
+    }
+
+    /// Convertit la réponse en JSON et l'ajoute à une ligne.
+    pub fn to_json_line(&self) -> String {
+        serde_json::to_string(self).unwrap_or_else(|_| {
+            serde_json::to_string(&Response::error("serialization error")).unwrap()
+        })
+    }
+}
+
+/// Énumération des commandes supportées.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Command {
+    Ping,
+    Set,
+    Get,
+    Del,
+    Keys,
+    Expire,
+    Ttl,
+    Incr,
+    Decr,
+    Save,
+}
