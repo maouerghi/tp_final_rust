@@ -65,10 +65,7 @@ mod tests {
         {
             let mut guard = store.lock().await;
             let past = Instant::now() - Duration::from_secs(1);
-            guard.insert(
-                "expired".to_string(),
-                Entry::with_expiry("old".to_string(), past),
-            );
+            guard.insert("expired".to_string(), Entry::with_expiry("old".to_string(), past));
         }
 
         // Vérifier l'état initial

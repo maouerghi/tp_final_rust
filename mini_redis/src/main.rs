@@ -67,8 +67,6 @@ async fn main() -> anyhow::Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
     fn test_config() {
         // Test simple pour vérifier que le projet compile
